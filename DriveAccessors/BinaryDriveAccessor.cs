@@ -10,7 +10,7 @@ namespace DriveAccessors
     public class BinaryDriveAccessor<T> : IEnumerable<T>, IDisposable where T : class
     {
         private Stream stream;
-        private BinaryFormatter serializer;
+        private IFormatter serializer;
         private bool disposed;
 
         public BinaryDriveAccessor(string path)
