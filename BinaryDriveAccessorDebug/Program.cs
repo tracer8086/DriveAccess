@@ -52,15 +52,20 @@ namespace BinaryDriveAccessorDebug
             Console.WriteLine(dataManager.GetNextRecord().Equals(people[2]));
             Console.WriteLine();
 
-            Person guy = dataManager.GetNextRecord();
-
-            Console.WriteLine(guy == null);
+            try
+            {
+                Person guy = dataManager.GetNextRecord();
+            }
+            catch (InvalidDataException)
+            {
+                Console.WriteLine("End of file");
+            }
 
             dataManager.Reset();
-            guy = dataManager.GetNextRecord();
+            Person man = dataManager.GetNextRecord();
 
-            Console.WriteLine(guy);
-            Console.WriteLine(guy.Equals(people[0]));
+            Console.WriteLine(man);
+            Console.WriteLine(man.Equals(people[0]));
 
             #endregion
 
