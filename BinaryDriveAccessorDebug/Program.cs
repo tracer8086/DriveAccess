@@ -14,6 +14,8 @@ namespace BinaryDriveAccessorDebug
 
         static void Main(string[] args)
         {
+            #region Drive accessor debug.
+
             File.Create(Path).Close();
 
             dataManager = new BinaryDriveAccessor<Person>(Path);
@@ -58,6 +60,16 @@ namespace BinaryDriveAccessorDebug
 
             Console.WriteLine(guy);
             Console.WriteLine(guy.Equals(people[0]));
+
+            #endregion
+
+            Console.WriteLine();
+
+            #region Indexed storage debug.
+
+            
+
+            #endregion
         }
     }
 }
