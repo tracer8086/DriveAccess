@@ -63,7 +63,7 @@ namespace DriveAccessors
             {
                 if (disposing)
                 {
-                    stream.Dispose();
+                    stream.Close();
                 }
 
                 disposed = true;
