@@ -36,7 +36,7 @@ namespace DriveAccessors
 
                 do
                 {
-                    result = (int)serializer.Deserialize(stream);
+                    result = (long)serializer.Deserialize(stream);
                     index--;
                 }
                 while (index >= 0);
