@@ -10,10 +10,28 @@ namespace DriveAccessors
     public class BinaryDriveAccessor<T> : IEnumerable<T>, IDisposable where T : class
     {
         private Stream stream;
-        private BinaryFormatter serializer;
+        private IFormatter serializer;
         private bool disposed;
+        private IIndexedStorage<long> addressStorage;
 
-        public BinaryDriveAccessor(string path)
+        public T this[int index]
+        {
+            get
+            {
+                long address = addressStorage[index];
+                long currentPosition = stream.Position;
+
+                stream.Position = address;
+
+                T record = GetNextRecord();
+
+                stream.Position = currentPosition;
+
+                return record;
+            }
+        }
+
+        public BinaryDriveAccessor(string path, IIndexedStorage<long> storage, IFormatter serializer)
         {
             disposed = false;
 
@@ -21,12 +39,13 @@ namespace DriveAccessors
                 throw new ArgumentException($"File \"{path}\" doesn't exist.");
 
             stream = File.Open(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
-            serializer = new BinaryFormatter();
+            addressStorage = storage;
+            this.serializer = serializer;
         }
 
         public T GetNextRecord()
         {
-            T nextRecord;
+            T nextRecord = null;
 
             try
             {
@@ -34,7 +53,7 @@ namespace DriveAccessors
             }
             catch (SerializationException)
             {
-                nextRecord = null;
+                throw new InvalidDataException("Couldn't retrieve next record");
             }
 
             return nextRecord;
@@ -43,12 +62,13 @@ namespace DriveAccessors
         public void AddRecord(T instance)
         {
             long currentPosition = stream.Position;
-
-            stream.Seek(0, SeekOrigin.End);
+            long lastRecordAddress = stream.Seek(0, SeekOrigin.End);
 
             serializer.Serialize(stream, instance);
 
             stream.Position = currentPosition;
+
+            addressStorage.Add(lastRecordAddress);
         }
 
         public void Reset() => stream.Seek(0, SeekOrigin.Begin);
@@ -62,9 +82,13 @@ namespace DriveAccessors
             {
                 stream.Position = enumPosition;
 
-                T nextRecord = GetNextRecord();
+                T nextRecord;
 
-                if (nextRecord == null)
+                try
+                {
+                    nextRecord = GetNextRecord();
+                }
+                catch (InvalidDataException)
                 {
                     stream.Position = currentPosition;
                     break;
@@ -86,6 +110,9 @@ namespace DriveAccessors
                 if (disposing)
                 {
                     stream.Close();
+
+                    if (addressStorage is IDisposable storage)
+                        storage.Dispose();
                 }
 
                 disposed = true;
