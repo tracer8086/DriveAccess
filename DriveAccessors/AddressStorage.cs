@@ -9,17 +9,21 @@ using System.Collections;
 
 namespace DriveAccessors
 {
-    class AddressStorage : IIndexedStorage<int>
+    class AddressStorage : IIndexedStorage<int>, IDisposable
     {
         private Stream stream;
         private BinaryFormatter serializer;
         private int? lastIndex;
+        private bool disposed;
 
         public int this[int index]
         {
             get
             {
-                if (lastIndex == null || index > lastIndex)
+                if (lastIndex == null)
+                    throw new InvalidOperationException("There are no stored elements");
+
+                if (index > lastIndex)
                     throw new IndexOutOfRangeException($"There are no elements stored by index {index}");
 
                 if (index < 0)
@@ -50,6 +54,20 @@ namespace DriveAccessors
 
             stream = File.Open(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
             serializer = new BinaryFormatter();
+            disposed = false;
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    stream.Dispose();
+                }
+
+                disposed = true;
+            }
         }
 
         public void Add(int item)
@@ -61,12 +79,12 @@ namespace DriveAccessors
 
         public IEnumerator<int> GetEnumerator()
         {
-            
+            for (int i = 0; i <= lastIndex; i++)
+                yield return this[i];
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public void Dispose() => Dispose(true);
     }
 }

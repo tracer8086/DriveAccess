@@ -26,7 +26,7 @@ namespace DriveAccessors
 
         public T GetNextRecord()
         {
-            T nextRecord;
+            T nextRecord = null;
 
             try
             {
@@ -34,7 +34,7 @@ namespace DriveAccessors
             }
             catch (SerializationException)
             {
-                nextRecord = null;
+                throw new InvalidDataException("Couldn't retrieve next record");
             }
 
             return nextRecord;
@@ -62,9 +62,13 @@ namespace DriveAccessors
             {
                 stream.Position = enumPosition;
 
-                T nextRecord = GetNextRecord();
+                T nextRecord;
 
-                if (nextRecord == null)
+                try
+                {
+                    nextRecord = GetNextRecord();
+                }
+                catch (InvalidDataException)
                 {
                     stream.Position = currentPosition;
                     break;
