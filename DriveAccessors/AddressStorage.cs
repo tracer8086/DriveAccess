@@ -79,8 +79,30 @@ namespace DriveAccessors
 
         public IEnumerator<long> GetEnumerator()
         {
-            for (int i = 0; i <= lastIndex; i++)
-                yield return this[i];
+            long enumPosition = 0;
+            long currentPosition = stream.Position;
+
+            while (true)
+            {
+                stream.Position = enumPosition;
+
+                long nextAddress;
+
+                try
+                {
+                    nextAddress = (long)serializer.Deserialize(stream);
+                }
+                catch (SerializationException)
+                {
+                    stream.Position = currentPosition;
+                    break;
+                }
+
+                enumPosition = stream.Position;
+                stream.Position = currentPosition;
+
+                yield return nextAddress;
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
