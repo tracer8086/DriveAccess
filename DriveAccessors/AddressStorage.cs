@@ -9,14 +9,14 @@ using System.Collections;
 
 namespace DriveAccessors
 {
-    class AddressStorage : IIndexedStorage<int>, IDisposable
+    public class AddressStorage : IIndexedStorage<long>, IDisposable
     {
         private Stream stream;
         private BinaryFormatter serializer;
         private int? lastIndex;
         private bool disposed;
 
-        public int this[int index]
+        public long this[int index]
         {
             get
             {
@@ -30,7 +30,7 @@ namespace DriveAccessors
                     throw new IndexOutOfRangeException($"Index value must be non-negative");
 
                 long currentPosition = stream.Position;
-                int result;
+                long result;
 
                 stream.Seek(0, SeekOrigin.Begin);
 
@@ -70,14 +70,14 @@ namespace DriveAccessors
             }
         }
 
-        public void Add(int item)
+        public void Add(long item)
         {
             serializer.Serialize(stream, item);
 
             lastIndex = lastIndex == null ? 0 : lastIndex + 1;
         }
 
-        public IEnumerator<int> GetEnumerator()
+        public IEnumerator<long> GetEnumerator()
         {
             for (int i = 0; i <= lastIndex; i++)
                 yield return this[i];

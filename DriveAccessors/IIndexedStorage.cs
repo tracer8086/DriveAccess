@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DriveAccessors
 {
-    interface IIndexedStorage<T> : IEnumerable<T>
+    public interface IIndexedStorage<T> : IEnumerable<T>
     {
         T this[int index] { get; }
 

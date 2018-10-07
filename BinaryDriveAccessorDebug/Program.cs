@@ -8,6 +8,7 @@ namespace BinaryDriveAccessorDebug
     class Program
     {
         public const string Path = "file.dat";
+        public const string AddressStoragePath = "addresses.dat";
 
         private static BinaryDriveAccessor<Person> dataManager;
         private static Person[] people;
@@ -67,7 +68,13 @@ namespace BinaryDriveAccessorDebug
 
             #region Indexed storage debug.
 
-            
+            File.Create(AddressStoragePath).Close();
+
+            IIndexedStorage<long> storage = new AddressStorage(AddressStoragePath) { 32, 13, 15 };
+
+            Console.WriteLine($"First address: {storage[0]}");
+            Console.WriteLine($"All: {String.Join(", ", storage)}");
+            Console.WriteLine($"Second address: {storage[1]}");
 
             #endregion
         }
