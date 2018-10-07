@@ -2,7 +2,6 @@
 using DriveAccessors;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Linq;
 using System.Collections.Generic;
 
 namespace BinaryDriveAccessorDebug
