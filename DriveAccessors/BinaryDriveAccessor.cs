@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 
 namespace DriveAccessors
 {
-    public class BinaryDriveAccessor<T> : IEnumerable<T>, IDisposable where T : class
+    public class BinaryDriveAccessor<T> : IDriveAccessor<T> where T : class
     {
         private Stream stream;
         private IFormatter serializer;
