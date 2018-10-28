@@ -30,7 +30,22 @@ namespace DriveAccessors
             reader = new StreamReader(stream);
         }
 
-        public T this[int index] => throw new NotImplementedException();
+        public T this[int index]
+        {
+            get
+            {
+                long address = addressStorage[index];
+                long currentPosition = stream.Position;
+
+                stream.Position = address;
+
+                T record = GetNextRecord();
+
+                stream.Position = currentPosition;
+
+                return record;
+            }
+        }
 
         public void AddRecord(T instance)
         {
@@ -46,14 +61,53 @@ namespace DriveAccessors
             addressStorage.Add(lastRecordAddress);
         }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    stream.Close();
+
+                    if (addressStorage is IDisposable storage)
+                        storage.Dispose();
+                }
+
+                disposed = true;
+            }
+        }
+
         public void Dispose()
         {
-            throw new NotImplementedException();
+            Dispose(true);
         }
 
         public IEnumerator<T> GetEnumerator()
         {
-            throw new NotImplementedException();
+            long enumPosition = 0;
+            long currentPosition = stream.Position;
+
+            while (true)
+            {
+                stream.Position = enumPosition;
+
+                T nextRecord;
+
+                try
+                {
+                    nextRecord = GetNextRecord();
+                }
+                catch (InvalidDataException)
+                {
+                    stream.Position = currentPosition;
+                    break;
+                }
+
+                enumPosition = stream.Position;
+                stream.Position = currentPosition;
+
+                yield return nextRecord;
+            }
         }
 
         public T GetNextRecord()
@@ -74,14 +128,8 @@ namespace DriveAccessors
             return nextRecord;
         }
 
-        public void Reset()
-        {
-            throw new NotImplementedException();
-        }
+        public void Reset() => stream.Seek(0, SeekOrigin.Begin);
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
