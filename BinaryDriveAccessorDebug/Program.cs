@@ -24,7 +24,7 @@ namespace BinaryDriveAccessorDebug
 
             IIndexedStorage<long> addressStorage = new AddressStorage(AddressStoragePath);
 
-            dataManager = new BinaryDriveAccessor<Person>(Path, addressStorage, new BinaryFormatter());
+            dataManager = new BinaryDriveAccessor<Person>(Path, addressStorage);
 
             people = new Person[]
             {

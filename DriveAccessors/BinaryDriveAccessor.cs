@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Collections;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace DriveAccessors
 {
     public class BinaryDriveAccessor<T> : IDriveAccessor<T> where T : class
     {
         private Stream stream;
-        private IFormatter serializer;
+        private BinaryFormatter serializer;
         private bool disposed;
         private IIndexedStorage<long> addressStorage;
 
@@ -30,7 +31,7 @@ namespace DriveAccessors
             }
         }
 
-        public BinaryDriveAccessor(string path, IIndexedStorage<long> storage, IFormatter serializer)
+        public BinaryDriveAccessor(string path, IIndexedStorage<long> storage)
         {
             disposed = false;
 
@@ -39,7 +40,7 @@ namespace DriveAccessors
 
             stream = File.Open(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
             addressStorage = storage;
-            this.serializer = serializer;
+            serializer = new BinaryFormatter();
         }
 
         public T GetNextRecord()
