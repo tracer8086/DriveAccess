@@ -8,7 +8,7 @@ using System.Runtime.Serialization;
 
 namespace DriveAccessors
 {
-    class JsonDriveAccessor<T> : IDriveAccessor<T> where T : class
+    public class JsonDriveAccessor<T> : IDriveAccessor<T> where T : class
     {
         private Stream stream;
         private StreamWriter writer;
