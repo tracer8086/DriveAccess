@@ -49,7 +49,7 @@ namespace JsonDriveAccessorDebug
             int i = 0;
 
             foreach (Person person in dataManager)
-                Console.WriteLine(person/*.Equals(people[i++])*/);
+                Console.WriteLine(person.Equals(people[i++]));
 
             Console.WriteLine(dataManager.GetNextRecord().Equals(people[2]));
             Console.WriteLine();
@@ -58,7 +58,7 @@ namespace JsonDriveAccessorDebug
             {
                 Person guy = dataManager.GetNextRecord();
             }
-            catch (InvalidDataException)
+            catch (EndOfStreamException)
             {
                 Console.WriteLine("End of file");
             }

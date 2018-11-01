@@ -12,7 +12,7 @@ namespace DriveAccessors
     {
         private Stream stream;
         private StreamWriter writer;
-        private StreamReader reader;
+        private BinaryReader reader;
         private bool disposed;
         private IIndexedStorage<long> addressStorage;
 
@@ -27,7 +27,8 @@ namespace DriveAccessors
             addressStorage = storage;
 
             writer = new StreamWriter(stream);
-            reader = new StreamReader(stream);
+            writer.AutoFlush = true;
+            reader = new BinaryReader(stream);
         }
 
         public T this[int index]
@@ -54,7 +55,6 @@ namespace DriveAccessors
             string jsonData = JsonConvert.SerializeObject(instance);
 
             writer.WriteLine(jsonData);
-            writer.Flush();
 
             stream.Position = currentPosition;
 
@@ -97,7 +97,7 @@ namespace DriveAccessors
                 {
                     nextRecord = GetNextRecord();
                 }
-                catch (InvalidDataException)
+                catch (EndOfStreamException)
                 {
                     stream.Position = currentPosition;
                     break;
@@ -116,9 +116,23 @@ namespace DriveAccessors
 
             try
             {
-                string jsonData = reader.ReadLine();
+                List<char> chars = new List<char>();
+                char newChar;
+
+                do
+                {
+                    newChar = reader.ReadChar();
+                    chars.Add(newChar);
+                }
+                while (newChar != '\n');
+
+                string jsonData = new string(chars.ToArray());
 
                 nextRecord = JsonConvert.DeserializeObject<T>(jsonData);
+            }
+            catch (EndOfStreamException)
+            {
+                throw new EndOfStreamException("End of stream reached");
             }
             catch (SerializationException)
             {
